@@ -1,11 +1,8 @@
 import { Router } from "express";
-import db from "../db";
+import controller from "../controllers/user";
 
 const router = Router();
 
-router.get('/', async (req, res) => {
-    const users = await db.user.findMany();
-    res.json(users);
-});
+router.get('/', controller.getAll);
 
 export default router;
