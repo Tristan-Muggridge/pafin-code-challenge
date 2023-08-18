@@ -33,3 +33,38 @@ const controller: Controller = {
 }
 
 export default controller;
+
+export const validateName = (name: string | undefined) => {
+    const provided = !!name;
+    const length = provided && name.length > 3;
+
+    return {provided, length}
+}
+
+export const validateEmail = (email: string | undefined) => {
+    const provided = !!email;
+    const valid = provided && email.includes("@") && email.split("@")[1].includes(".");
+    return {provided, valid}
+}
+
+export const validatePassword = (password: string | undefined) => {
+    const provided = !!password;
+    const length = provided && password.length >= 8;
+    const number = provided && !!password.match(/\d+/g);
+    const special = provided && !!password.match(/[!@#$%^&*(),.?":{}|<>]/g);
+
+    return {provided, length, number, special}
+}
+
+export const validateEmailDbUniqueness = async (email: string | undefined) => {
+    return {available: email ? !!(await db.user.findMany({ where: { email } })) : false};
+}
+
+export const validateCreatePayload = (payload: any) => {
+    const { name, email, password } = payload;
+    return {
+        name: validateName(name),
+        email: validateEmail(email),
+        password: validatePassword(password),
+    };
+}
