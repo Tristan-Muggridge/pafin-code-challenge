@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { describe } from 'mocha';
-import { validateName, validateEmail, validatePassword } from '../../../src/controllers/user';        
+import { validateName, validateEmail, validatePassword } from '../../src/controllers/user';        
 
 describe('ValidateName', () => {
 
@@ -81,48 +81,48 @@ describe('ValidatePassword', () => {
         expect(result).to.deep.equal({
             provided: true,
             length: true,
-            number: true,
-            special: true,
+            numbers: true,
+            specials: true,
         });
     });
 
-    it('Password1 is not a valid password - no special', () => {
+    it('Password1 is not a valid password - no specials', () => {
         const result = validatePassword('Password1');
         expect(result).to.deep.equal({
             provided: true,
             length: true,
-            number: true,
-            special: false,
+            numbers: true,
+            specials: false,
         });
     });
 
-    it('Password! is not a valid password - no number', () => {
+    it('Password! is not a valid password - no numbers', () => {
         const result = validatePassword('Password!');
         expect(result).to.deep.equal({
             provided: true,
             length: true,
-            number: false,
-            special: true,
+            numbers: false,
+            specials: true,
         });
     });
 
-    it('Password is not a valid password - no num & no special', () => {
+    it('Password is not a valid password - no num & no specials', () => {
         const result = validatePassword('Password');
         expect(result).to.deep.equal({
             provided: true,
             length: true,
-            number: false,
-            special: false,
+            numbers: false,
+            specials: false,
         });
     });
 
-    it('test is not a valid password - too short, no num, no special', () => {
+    it('test is not a valid password - too short, no num, no specials', () => {
         const result = validatePassword('Password');
         expect(result).to.deep.equal({
             provided: true,
             length: true,
-            number: false,
-            special: false,
+            numbers: false,
+            specials: false,
         });
     });
 
@@ -131,8 +131,8 @@ describe('ValidatePassword', () => {
         expect(result).to.deep.equal({
             provided: false,
             length: false,
-            number: false,
-            special: false,
+            numbers: false,
+            specials: false,
         });
     });
 
@@ -141,8 +141,8 @@ describe('ValidatePassword', () => {
         expect(result).to.deep.equal({
             provided: false,
             length: false,
-            number: false,
-            special: false,
+            numbers: false,
+            specials: false,
         });
     });
 
