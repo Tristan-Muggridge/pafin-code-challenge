@@ -12,17 +12,16 @@ interface Controller {
 class JSONResponse {
     status: status;
     message?: string;
-    data: Object;
-
+    data?: Object | null;
     current_page?: number
     total_pages?: number
 
-    constructor(status: status, data: Object, message?:string, additionalInfo?: {
+    constructor(status: status, data?:Object|null, message?:string, additionalInfo?: {
         currentPage?: number
         totalPages?: number
     }) {
         this.status = status;
-        this.data = {...data};
+        this.data = data ? {...data} : null;
         if (message) this.message = message;
         
         if (additionalInfo) {
@@ -38,6 +37,7 @@ const minPasswordNumber = 1;
 const minPasswordSpecial = 1;
 
 const controller: Controller = {
+    
     getAll: async (req: Request, res: Response) => {
         
         type QueryParams = {
@@ -180,7 +180,30 @@ const controller: Controller = {
     },
 
     update: async (req: Request, res: Response) => new Error("Not implemented"),
-    delete: async (req: Request, res: Response) => new Error("Not implemented"),
+    delete: async (req: Request, res: Response) => {
+        const { id } = req.params;
+
+        if (!id) {
+            const response = new JSONResponse(status.fail, {id: "No user id provided in url parameters."});
+            res.status(httpCodes.BadRequest).json(response);
+            return;
+        }
+
+        try {
+            const user = await db.user.delete({
+                where: {
+                    id: id,
+                }
+            });
+        } catch {
+            const response = new JSONResponse(status.fail, {id: "No user found with that id."});
+            res.status(httpCodes.NotFound).json(response);
+            return;
+        }
+
+        const response = new JSONResponse(status.success);
+        res.status(httpCodes.NoContent).json(response);
+    },
 }
 
 export default controller;
