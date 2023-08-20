@@ -6,7 +6,7 @@ import JSONResponse from "../../jsonResponse";
 import jsonStatus from "../../enums/jsonStatus";
 
 import {JwtPayload, sign} from '../../JWT';
-import { App } from "../../App";
+import { App } from "../../app";
 
 interface AuthController {
     login(req: Request, res: Response): Promise<void>;

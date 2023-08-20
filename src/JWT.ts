@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import settings from './appSettings';
 import { NextFunction, Request, Response } from 'express';
 import httpCodes from './enums/httpCodes';
-import { App } from './App';
+import { App } from './app';
 
 export interface JwtPayload {
     userId: string
