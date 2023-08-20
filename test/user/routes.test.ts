@@ -193,4 +193,34 @@ describe("POST /api/users create many", async () => {
             }
         })
     });
+
+    it('Should return 0 users when 2 users fail', async () => {
+        const result = await request(server).post('/api/users').send([
+            {
+                name: "Test User",
+                email: "testuser4@test.com",
+                password: "Password123!",
+            },
+            {
+                name: "Test User",
+                email: "testuser3@test.com",
+                password: "Password123!",
+            }
+        ]).set('Authorization', `Bearer ${token}`);
+
+        console.debug(JSON.stringify(result.body));
+
+        expect(result.status).to.equal(201);
+        expect(result.body.status).to.equal('fail');
+        expect(result.body.data.success).to.be.undefined;
+        expect(result.body.data.fail).to.be.an('object');
+        expect(result.body.data.fail).to.deep.equals({
+            "testuser4@test.com": {
+                email: "Email already exists."
+            },
+            "testuser3@test.com": {
+                email: "Email already exists."
+            }
+        })
+    });
 })

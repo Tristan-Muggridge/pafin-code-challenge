@@ -165,7 +165,7 @@ class UserController {
 
         responseObj[status.success] = createdUsers;
 
-        const response = JSONResponse(status.success, {...responseObj});
+        const response = JSONResponse(responseObj[status.fail] ? status.fail : status.success, {...responseObj});
         return res.status(httpCodes.Created).json({...response});
     }
 
