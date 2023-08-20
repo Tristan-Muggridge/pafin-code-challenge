@@ -4,7 +4,7 @@ import db, { UserCreate } from "../../database/db";
 
 import httpCodes from "../../enums/httpCodes";
 import status from "../../enums/jsonStatus";
-import JSONResponse from "../../jsonResponse";
+import JSONResponse from "../../JsonResponse";
 
 import UserValidation from "./UserValidation";
 

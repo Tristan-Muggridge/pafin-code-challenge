@@ -2,11 +2,11 @@ import { Request, Response } from "express";
 import { Buffer } from "buffer";
 import db from "../../database/db";
 import httpCodes from "../../enums/httpCodes";
-import JSONResponse from "../../jsonResponse";
+import JSONResponse from "../../JsonResponse";
 import jsonStatus from "../../enums/jsonStatus";
 
 import {JwtPayload, sign} from '../../JWT';
-import { App } from "../../app";
+import { App } from "../../App";
 
 interface AuthController {
     login(req: Request, res: Response): Promise<void>;
