@@ -1,12 +1,9 @@
 import { Router } from "express";
 import userController from "../controllers/user";
-
-import settings from "../appSettings";
-import { memoryDb, prismaDb } from "../database/db";
+import getDB from "../database/getDB";
 
 const router = Router();
-const getDb = () => settings.dbType === 'prisma' ? prismaDb : memoryDb;
-const controller = userController(getDb());
+const controller = userController(getDB());
 
 router.route('/')
     .get(controller.getAll)
