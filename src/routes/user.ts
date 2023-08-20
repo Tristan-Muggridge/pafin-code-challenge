@@ -1,7 +1,12 @@
 import { Router } from "express";
-import controller from "../controllers/user";
+import userController from "../controllers/user";
+
+import settings from "../appSettings";
+import { memoryDb, prismaDb } from "../database/db";
 
 const router = Router();
+const getDb = () => settings.dbType === 'prisma' ? prismaDb : memoryDb;
+const controller = userController(getDb());
 
 router.route('/')
     .get(controller.getAll)
@@ -9,7 +14,7 @@ router.route('/')
 
 router.route('/:id')
     .get(controller.getOne)
-    .put(controller.update)
+    .patch(controller.update)
     .delete(controller.delete)
 
 export default router;

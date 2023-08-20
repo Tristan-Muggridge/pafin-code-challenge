@@ -1,7 +1,4 @@
-import app from "./app";
+import App from "./App";
+import settings from "./appSettings";
 
-const port = 3000;
-
-app.listen(port, () => {
-    console.log(`Server started at http://localhost:${port}`);
-});
+App(settings.port);
