@@ -14,7 +14,7 @@ export default class JSONResponse {
         count?: number
     }) {
         this.status = status;
-        this.data = data ? {...data} : null;
+        data ? this.data = {...data} : null;
         if (message) this.message = message;
         
         if (additionalInfo) {

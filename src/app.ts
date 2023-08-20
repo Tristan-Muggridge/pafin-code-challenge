@@ -17,6 +17,11 @@ export class App {
         app.use('/api/users', authenticate, userRouter);
         app.use('/', authRouter);
 
+        // catch all error handler
+        app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            res.status(500).send('Something went wrong');
+        });
+
         app.listen(port, () => {
             console.log(`Server listening on port ${port}`);
             console.log(`DB: ${settings.dbType}`)

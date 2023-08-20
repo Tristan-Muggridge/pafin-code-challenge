@@ -3,7 +3,8 @@ import settings from './appSettings';
 import { NextFunction, Request, Response } from 'express';
 import httpCodes from './enums/httpCodes';
 import { App } from './App';
-
+import JSONResponse from './JsonResponse';
+import jsonStatus from './enums/jsonStatus';
 export interface JwtPayload {
     userId: string
 }
@@ -14,7 +15,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     const token = req.headers.authorization?.split(' ')[1] || '';
 
     if (!token) {
-        res.status(httpCodes.Unauthorized).send('No token provided');
+        res.status(httpCodes.Unauthorized).json(new JSONResponse(jsonStatus.fail, undefined, 'No token provided'));
         return;
     }
 
@@ -22,7 +23,14 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
         res.status(httpCodes.Unauthorized).send('Token not allowed');
     }
 
-    const verification = jwt.verify(token, jwtSecret);
+    let verification: string | jwt.JwtPayload;
+
+    try {
+        verification = verify(token);
+    } catch (error) {
+        res.status(httpCodes.Unauthorized).send(new JSONResponse(jsonStatus.fail, undefined, 'Invalid token'));
+        return;
+    }
 
     if (!verification) {
         res.status(httpCodes.Unauthorized).send('Invalid token');

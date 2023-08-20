@@ -49,13 +49,14 @@ class AuthController implements AuthController {
         const authenticated = await strategy.authenticate(this.db);
         
         if (!authenticated) {
-            res.status(401).send('Unauthorized');
+            res.status(httpCodes.Unauthorized).json(new JSONResponse(jsonStatus.fail, undefined, 'Invalid credentials'));
             return;
         }
         
         const token = sign({userId: authenticated})
 
         res.status(httpCodes.Ok).json(new JSONResponse(jsonStatus.success, {token}));
+        return;
     }
 
     public logout = (req: Request, res: Response) => {
@@ -75,7 +76,7 @@ class AuthController implements AuthController {
             password: 'admin',
         })
 
-        const response = new JSONResponse(jsonStatus.success, {created});
+        const response = new JSONResponse(jsonStatus.success, {user: created});
         return res.status(httpCodes.Created).json(response);
     }
 }
