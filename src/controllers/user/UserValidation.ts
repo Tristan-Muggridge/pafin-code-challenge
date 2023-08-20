@@ -32,7 +32,6 @@ class UserValidation {
 
     private validateName = (name: string) => {
         name = name.trim();
-
         const rules = [
             {
                 valid: !!name,
@@ -48,6 +47,7 @@ class UserValidation {
     }
 
     private validateEmail = (email: string):ValidationSummary => {
+        email = email.trim();
         const rules = [
             // Check for email
             {
@@ -61,7 +61,7 @@ class UserValidation {
             },
             // Check for domain after @ symbol
             {
-                valid: !!email?.split("@")[1],
+                valid: email?.split("@")[1]?.split('.')[1] !== undefined,
                 message: "Email must contain a domain. (e.g. @gmail.com)"
             }
         ]
@@ -70,6 +70,7 @@ class UserValidation {
     }
 
     private validatePassword = (password: string) => {
+        password = password.trim();
         const rules = [
             {
                 valid: !!password,

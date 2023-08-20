@@ -1,33 +1,45 @@
-import express from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import userRouter from './routes/user'
 import authRouter from './routes/auth'
-import settings from './appSettings';
+import { AppSettings } from './appSettings';
 import { authenticate } from './JWT';
+import httpCodes from './enums/httpCodes';
+
+function errorMiddleware(err: any, req: Request, res: Response, next: NextFunction) {
+    console.error(err); // Log the error for debugging purposes
+  
+    // Handle the error response
+    res.status(httpCodes.InternalServerError).json({
+      status: 'error',
+      message: 'Something went wrong',
+    });
+  }
 
 export class App {
     public app: express.Application;
     public static tokenNotAllowedList: Set<string> = new Set();
+    public settings: AppSettings;
 
-    constructor(port: number) {
+    constructor(settings: AppSettings) {
         this.app = express();
+        this.settings = settings;
         const app = this.app;
 
         app.use(express.json());
+
+        app.use(errorMiddleware);
+    
 
         app.use('/api/users', authenticate, userRouter);
         app.use('/', authRouter);
 
         // catch all error handler
-        app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-            res.status(500).send('Something went wrong');
-        });
-
-        app.listen(port, () => {
-            console.log(`Server listening on port ${port}`);
-            console.log(`DB: ${settings.dbType}`)
-        });
     }
+
+    public start = () => this.app.listen(this.settings.port, () => {
+        console.log(`Server listening on port ${this.settings.port}`);
+        console.log(`DB: ${this.settings.dbType}`)
+    });
 }
 
-const ApplicationStart = (port: number) => new App(port);
-export default ApplicationStart;
+export default App;

@@ -1,26 +1,27 @@
 import status from "./enums/jsonStatus";
 
-export default class JSONResponse {
-    status: status;
-    message?: string;
-    data?: Object | null;
-    current_page?: number;
-    total_pages?: number;
-    count?: number;
+class JSONData {
+    public status: status;
+    public data?: any;
+    public optionalObject?: any;
 
-    constructor(status: status, data?:Object|null, message?:string, additionalInfo?: {
-        currentPage?: number
-        totalPages?: number
-        count?: number
-    }) {
+    constructor(status: status, data?: Object, optionalObject?: any) {
         this.status = status;
-        data ? this.data = {...data} : null;
-        if (message) this.message = message;
+        this.data = data;
+    }
+
+    public get value() : Object {
         
-        if (additionalInfo) {
-            this.current_page = additionalInfo.currentPage;
-            this.total_pages = additionalInfo.totalPages;
-            this.count = additionalInfo.count;
+        const returnObject = {
+            status: this.status,
+            data: this.data,
+            ...this.optionalObject,
         }
+
+        // remove any undefined, null, empty arrays, empty objects from data
+        return JSON.parse(JSON.stringify(returnObject));
+        
     }
 }
+
+export default (status: status, data: any, optionalData?:any) => new JSONData(status, data, optionalData); 

@@ -67,7 +67,7 @@ class UserController {
         const pages = Math.ceil( userCount / take);
 
         const message = users.length === 0 ? "No users found." : "";
-        const response = new JSONResponse(status.success, {users}, message, {totalPages: pages, currentPage: Math.ceil(skip / take) + 1, count: users.length});
+        const response = JSONResponse(status.success, {users}, {totalPages: pages, currentPage: Math.ceil(skip / take) + 1, count: users.length, message});
         
         res.status(httpCodes.Ok).json(response);
     }
@@ -76,20 +76,20 @@ class UserController {
         const { id } = req.params;
 
         if (!id) {
-            const response = new JSONResponse(status.fail, {id: "No user id provided in url parameters."});
+            const response = JSONResponse(status.fail, {id: "No user id provided in url parameters."});
             res.status(httpCodes.BadRequest).json(response);
             return;
         }
 
         const user = await this.db.getUserById(id);
 
-        const response = new JSONResponse(status.success, {user});
+        const response = JSONResponse(status.success, {user});
         res.status(httpCodes.Ok).json(response);
     }
     
     public create = async (req: Request, res: Response) => {
         if (!req.body) {
-            const response = new JSONResponse(status.fail, {body: "No body provided."});
+            const response = JSONResponse(status.fail, {body: "No body provided."});
             res.status(httpCodes.BadRequest).json(response);
             return;
         }
@@ -105,11 +105,11 @@ class UserController {
         const validation = UserValidation(user);
 
         if (!validation.valid) {
-            const response = new JSONResponse(status.fail, {errors: {
+            const response = JSONResponse(status.fail, {
                 name: validation.name.messages,
                 email: validation.email.messages,
                 password: validation.password.messages,
-            }});
+            });
             res.status(httpCodes.BadRequest).json(response);
             return;
         }
@@ -117,27 +117,28 @@ class UserController {
         const emailUniqueness = await this.db.validateEmailUniqueness(user.email);
 
         if (!emailUniqueness) {
-            const response = new JSONResponse(status.fail, {email: "Email already exists."});
+            const response = JSONResponse(status.fail, {email: "Email already exists."});
             res.status(httpCodes.BadRequest).json(response);
             return;
         }
 
         const created = await this.db.createUser(user);
 
-        const response = new JSONResponse(status.success, {user: created});
+        const response = JSONResponse(status.success, {user: created});
         res.status(httpCodes.Created).json(response);
     }
 
     public createMany = async (req: Request, res: Response) => {                
         const users = req.body as UserCreate[];
         
-        const responseObj:any = { [status.success]: [], [status.fail]: {} };
+        const responseObj:any = { [status.success]: [] };
         const validatedUsers: Map<string, UserCreate> = new Map();
 
         users.forEach( (user, index) => {
             const validation = UserValidation(user);
             
             if (!validation.valid) {
+                responseObj[status.fail] = { ...responseObj[status.fail] ?? {} }
                 responseObj[status.fail][user.email ?? index] = {
                     name: validation.name.messages,
                     email: validation.email.messages,
@@ -157,14 +158,14 @@ class UserController {
         validatedUsers.forEach( (user, email) => {
             emailUniqueness.get(email)?.unique 
                 ? usersToCreate.push(user) 
-                : responseObj[status.fail][email] = { email: "Email already exists." };
+                : responseObj[status.fail] = { ...responseObj[status.fail] ?? {}, [email]: {email: "Email already exists."} };
         });
 
         const createdUsers = await this.db.createUsers(usersToCreate);
 
         responseObj[status.success] = createdUsers;
 
-        const response = new JSONResponse(status.success, {...responseObj});
+        const response = JSONResponse(status.success, {...responseObj});
         return res.status(httpCodes.Created).json({...response});
     }
 
@@ -175,7 +176,7 @@ class UserController {
 
         const { id } = req.params as {id: string};
         if (!id) {
-            const response = new JSONResponse(status.fail, {id: "No user id provided in url parameters."});
+            const response = JSONResponse(status.fail, {id: "No user id provided in url parameters."});
             res.status(httpCodes.BadRequest).json(response);
             return;
         }
@@ -196,7 +197,7 @@ class UserController {
         if (payload.password) errors.password = validation.password.messages;
 
         if (errors.name || errors.email || errors.password) {
-            const response = new JSONResponse(status.fail, {errors});
+            const response = JSONResponse(status.fail, {errors});
             res.status(httpCodes.BadRequest).json(response);
             return;
         }
@@ -206,12 +207,12 @@ class UserController {
 
         // if the update is null (user not found) return a 404
         if (!update) {
-            const response = new JSONResponse(status.fail, {id: "No user found with that id."});
+            const response = JSONResponse(status.fail, {id: "No user found with that id."});
             res.status(httpCodes.NotFound).json(response);
             return;
         }
 
-        const response = new JSONResponse(status.success, {user: update});
+        const response = JSONResponse(status.success, {user: update});
         res.status(httpCodes.Ok).json(response);
     }
 
@@ -219,7 +220,7 @@ class UserController {
         const { id } = req.params;
 
         if (!id) {
-            const response = new JSONResponse(status.fail, {id: "No user id provided in url parameters."});
+            const response = JSONResponse(status.fail, {id: "No user id provided in url parameters."});
             res.status(httpCodes.BadRequest).json(response);
             return;
         }
@@ -227,12 +228,12 @@ class UserController {
         try {
             const user = await this.db.deleteUser(id);
         } catch {
-            const response = new JSONResponse(status.fail, {id: "No user found with that id."});
+            const response = JSONResponse(status.fail, {id: "No user found with that id."});
             res.status(httpCodes.NotFound).json(response);
             return;
         }
 
-        const response = new JSONResponse(status.success);
+        const response = JSONResponse(status.success, null, "User deleted.");
         res.status(httpCodes.NoContent).json(response);
     }
 }

@@ -15,7 +15,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     const token = req.headers.authorization?.split(' ')[1] || '';
 
     if (!token) {
-        res.status(httpCodes.Unauthorized).json(new JSONResponse(jsonStatus.fail, undefined, 'No token provided'));
+        res.status(httpCodes.Unauthorized).json(JSONResponse(jsonStatus.fail, undefined, 'No token provided'));
         return;
     }
 
@@ -28,7 +28,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     try {
         verification = verify(token);
     } catch (error) {
-        res.status(httpCodes.Unauthorized).send(new JSONResponse(jsonStatus.fail, undefined, 'Invalid token'));
+        res.status(httpCodes.Unauthorized).send(JSONResponse(jsonStatus.fail, undefined, 'Invalid token'));
         return;
     }
 
