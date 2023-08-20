@@ -24,4 +24,5 @@ export class App {
     }
 }
 
-export default (port: number) => new App(port);
+const ApplicationStart = (port: number) => new App(port);
+export default ApplicationStart;
