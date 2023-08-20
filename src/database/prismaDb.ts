@@ -149,6 +149,22 @@ class prismaDb implements db {
 
         return emailUniquenessMap;
     }
+
+    public async basicAuth(username: string, password: string) {
+        const user = await this.prisma.user.findUnique({
+            where: {
+                email: username,
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                password: true,
+            }
+        });
+
+        return user?.password === password ? user.id : null;
+    }
 }
 
 export default prismaDb.getInstance();

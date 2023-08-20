@@ -20,6 +20,8 @@ export default interface db {
 
     validateEmailUniqueness: (email: string) => Promise<boolean>;
     validateManyEmailUniqueness: (emailUsers: Map<string, UserCreate>) => Promise<Map<string, UserCreate&{unique:boolean}>>;
+
+    basicAuth: (username: string, password: string) => Promise<string | null>;
 }
 
 export type UserSelect = {

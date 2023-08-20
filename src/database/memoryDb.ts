@@ -131,6 +131,11 @@ class memoryDb implements db {
 
         return emailUniquenessMap;
     }
+
+    public async basicAuth(username: string, password: string) {
+        const user = Array.from(this.users.values()).find(user => user.name === username);
+        return user?.password === password ? user.id : null;
+    }
 }
 
 export default memoryDb.getInstance();
