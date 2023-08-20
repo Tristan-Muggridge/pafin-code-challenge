@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import settings from './appSettings';
 import { NextFunction, Request, Response } from 'express';
 import httpCodes from './enums/httpCodes';
+import { App } from './App';
 
 export interface JwtPayload {
     userId: string
@@ -14,6 +15,11 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
 
     if (!token) {
         res.status(httpCodes.Unauthorized).send('No token provided');
+        return;
+    }
+
+    if (App.tokenNotAllowedList.has(token)) {
+        res.status(httpCodes.Unauthorized).send('Token not allowed');
     }
 
     const verification = jwt.verify(token, jwtSecret);

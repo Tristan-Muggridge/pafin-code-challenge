@@ -4,8 +4,9 @@ import authRouter from './routes/auth'
 import settings from './appSettings';
 import { authenticate } from './JWT';
 
-class App {
+export class App {
     public app: express.Application;
+    public static tokenNotAllowedList: Set<string> = new Set();
 
     constructor(port: number) {
         this.app = express();
