@@ -1,16 +1,22 @@
 import express from 'express'
 import userRouter from './routes/user'
+import authRouter from './routes/auth'
 import settings from './appSettings';
+import { authenticate } from './JWT';
 
 class App {
     public app: express.Application;
 
     constructor(port: number) {
         this.app = express();
-        this.app.use(express.json());
-        this.app.use('/api/users', userRouter);
+        const app = this.app;
 
-        this.app.listen(port, () => {
+        app.use(express.json());
+
+        app.use('/api/users', authenticate, userRouter);
+        app.use('/', authRouter);
+
+        app.listen(port, () => {
             console.log(`Server listening on port ${port}`);
             console.log(`DB: ${settings.dbType}`)
         });
