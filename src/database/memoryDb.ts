@@ -1,6 +1,7 @@
 import { User } from "@prisma/client";
 import { randomUUID } from "crypto";
 import db, { getAllUsersOptions, UserCreate, UserUpdate } from "./db";
+import { createHash } from "../createHash";
 
 class memoryDb implements db {
 
@@ -56,10 +57,12 @@ class memoryDb implements db {
         
         const dataWithId = {
             ...data,
+            password: createHash(data.password),
             id: randomUUID() as string,
         };
 
         this.users.set(dataWithId.id, dataWithId);
+                
         return {
             id: dataWithId.id,
             name: dataWithId.name,
@@ -70,6 +73,7 @@ class memoryDb implements db {
     public async createUsers(data: UserCreate[]) {
         const users = data.map(user => ({
             ...user,
+            password: createHash(user.password),
             id: randomUUID() as string,
         }));
 
@@ -133,8 +137,8 @@ class memoryDb implements db {
     }
 
     public async basicAuth(username: string, password: string) {
-        const user = Array.from(this.users.values()).find(user => user.name === username);
-        return user?.password === password ? user.id : null;
+        const user = Array.from(this.users.values()).find(user => user.email === username);
+        return user?.password === createHash(password) ? user.id : null;
     }
 }
 

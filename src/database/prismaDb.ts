@@ -1,5 +1,6 @@
 import { PrismaClient, User } from "@prisma/client";
 import db, { getAllUsersOptions, UserCreate, UserSelect, UserUpdate } from "./db";
+import { createHash } from "../createHash";
 
 class prismaDb implements db {
 
@@ -53,6 +54,9 @@ class prismaDb implements db {
     }
 
     public async createUser(data: UserCreate) {
+        
+        data = {...data, password: createHash(data.password)}
+        
         return await this.prisma.user.create({
             data,
             select: {
@@ -64,6 +68,9 @@ class prismaDb implements db {
     }
 
     public async createUsers(data: UserCreate[]) {
+        
+        data = data.map(user => ({...user, password: createHash(user.password)}));
+        
         const users = await this.prisma.user.createMany({
             data,
         })
@@ -163,7 +170,7 @@ class prismaDb implements db {
             }
         });
 
-        return user?.password === password ? user.id : null;
+        return user?.password === createHash(password) ? user.id : null;
     }
 }
 
