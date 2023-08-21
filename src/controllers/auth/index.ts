@@ -5,7 +5,7 @@ import httpCodes from "../../enums/httpCodes";
 import JSONResponse from "../../JsonResponse";
 import jsonStatus from "../../enums/jsonStatus";
 
-import {JwtPayload, sign} from '../../JWT';
+import { sign } from '../../JWT';
 import { App } from "../../App";
 
 interface AuthController {
