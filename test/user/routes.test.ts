@@ -9,7 +9,7 @@ let token: string = "";
 const settings: AppSettings = {
     dbType: 'memory',
     port: 3001,
-    jwtSecret: 'replace-me',
+    jwtSecret: '秘密です～',
     environment: 'testing'
 }
 
@@ -207,8 +207,6 @@ describe("POST /api/users create many", async () => {
                 password: "Password123!",
             }
         ]).set('Authorization', `Bearer ${token}`);
-
-        console.debug(JSON.stringify(result.body));
 
         expect(result.status).to.equal(201);
         expect(result.body.status).to.equal('fail');

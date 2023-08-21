@@ -63,9 +63,15 @@ class AuthController implements AuthController {
         
         // get token from header
         const token = req.headers.authorization?.split(' ')[1] || '';
-
+        
+        if (!token) {
+            res.status(httpCodes.BadRequest).json(JSONResponse(jsonStatus.fail, undefined, 'Unable to log out. Token is missing.'));
+            return;
+        }
+        
         App.tokenNotAllowedList.add(token);
-        res.status(httpCodes.Ok).send('Logged out');
+        res.status(httpCodes.Ok).send(JSONResponse(jsonStatus.success, undefined, {message: 'Logged out successfully'}));
+        
         return;
     }
 

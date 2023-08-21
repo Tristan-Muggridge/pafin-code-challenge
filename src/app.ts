@@ -4,14 +4,15 @@ import authRouter from './routes/auth'
 import { AppSettings } from './appSettings';
 import { authenticate } from './JWT';
 import httpCodes from './enums/httpCodes';
+import jsonStatus from './enums/jsonStatus';
 
 function errorMiddleware(err: any, req: Request, res: Response, next: NextFunction) {
     console.error(err); // Log the error for debugging purposes
   
     // Handle the error response
     res.status(httpCodes.InternalServerError).json({
-      status: 'error',
-      message: 'Something went wrong',
+      status: jsonStatus.error,
+      message: err.message ?? 'Something went wrong',
     });
   }
 
