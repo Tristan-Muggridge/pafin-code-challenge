@@ -41,8 +41,7 @@ export class App {
         app.use(express.json());
 		
 		// Protect all of our user routes with JWT authentication
-        // app.use('/api/users', authenticate, userRouter);
-        app.use('/api/users', userRouter);
+        app.use('/api/users', authenticate, userRouter);
 
 		// Allow unauthenticated users to access the auth routes for logging in and registering
         app.use('/', authRouter);
