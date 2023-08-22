@@ -29,9 +29,9 @@ class memoryDb implements db {
         
         const {skip, take, sort, sortOrder} = options;
 
-        if (skip) users.splice(0, skip);
-        if (take) users.splice(take);
-        if (sort) users.sort((a, b) => {
+        skip && users.splice(0, skip);
+        take && users.splice(take);
+        sort && users.sort((a, b) => {
             if (a[sort] < b[sort]) return sortOrder === 'asc' ? -1 : 1;
             if (a[sort] > b[sort]) return sortOrder === 'asc' ? 1 : -1;
             return 0;
