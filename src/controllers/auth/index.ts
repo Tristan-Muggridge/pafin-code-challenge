@@ -1,42 +1,20 @@
 import { Request, Response } from "express";
-import { Buffer } from "buffer";
 import db from "../../database/db";
+
 import httpCodes from "../../enums/httpCodes";
 import JSONResponse from "../../JsonResponse";
 import jsonStatus from "../../enums/jsonStatus";
 
 import { sign } from '../../JWT';
 import { App } from "../../App";
+import { BasicAuthStrategy } from "../../classes/AuthStrategies";
 
-interface AuthController {
+interface IAuthController {
     login(req: Request, res: Response): Promise<void>;
     logout(req: Request, res: Response): void;
-    register(req: Request, res: Response): void;
-    refresh(req: Request, res: Response): void; 
 }
 
-interface AuthStrategy {
-    authenticate(db: db): Promise<string | null>;
-}
-
-class BasicAuthStrategy implements AuthStrategy {
-    public username: string;
-    public password: string;
-
-    public async authenticate(db: db) {
-        return await db.basicAuth(this.username, this.password);
-    }
-
-    constructor(req: Request) {
-        const authHeaderBase64 = req.headers.authorization?.split(' ')[1] || '';
-        const [username, password] = Buffer.from(authHeaderBase64, 'base64').toString().split(':');
-
-        this.username = username;
-        this.password = password;
-    }
-}
-
-class AuthController implements AuthController {
+class AuthController implements IAuthController {
     
     private db: db;
 
@@ -45,8 +23,10 @@ class AuthController implements AuthController {
     }
 
     public login = async (req: Request, res: Response) => {
-        const strategy = new BasicAuthStrategy(req);
-        const authenticated = await strategy.authenticate(this.db);
+
+        // Authenticate the provided credentials via Basic Auth
+        const strategy = new BasicAuthStrategy(req, this.db);
+        const authenticated = await strategy.authenticate();
         
         if (!authenticated) {
             res.status(httpCodes.Unauthorized).json(JSONResponse(jsonStatus.fail, undefined, 'Invalid credentials'));
@@ -65,25 +45,26 @@ class AuthController implements AuthController {
         const token = req.headers.authorization?.split(' ')[1] || '';
         
         if (!token) {
-            res.status(httpCodes.BadRequest).json(JSONResponse(jsonStatus.fail, undefined, 'Unable to log out. Token is missing.'));
+            res.status(httpCodes.BadRequest).json(JSONResponse(jsonStatus.fail, undefined, {message: 'Unable to logout. No token provided'}));
             return;
         }
         
         App.tokenNotAllowedList.add(token);
+
         res.status(httpCodes.Ok).send(JSONResponse(jsonStatus.success, undefined, {message: 'Logged out successfully'}));
-        
         return;
     }
 
     public TEST_ONLY_create_admin_user = async (req: Request, res: Response) => {
-        const created = await this.db.createUser({
+        const user = await this.db.createUser({
             name: 'admin',
             email: 'admin',
             password: 'admin',
         })
 
-        const response = JSONResponse(jsonStatus.success, {user: created});
-        return res.status(httpCodes.Created).json(response);
+        const response = JSONResponse(jsonStatus.success, {user});
+        res.status(httpCodes.Created).json(response);
+        return;
     }
 }
 
