@@ -8,31 +8,40 @@ class JSONData {
     constructor(status: status, data?: Object, optionalObject?: any) {
         this.status = status;
         this.data = data;
+        this.optionalObject = optionalObject;
     }
 
     public get value() : Object {
         
         let data = this.data;
+        let optionalObject = this.optionalObject;
 
-        for (const key in data) {
-            if (data[key] === undefined || data[key] === null) {
-                delete data[key];
-            }
-            else if (Array.isArray(data[key]) && data[key].length === 0) {
-                delete data[key];
-            }
-            else if (typeof data[key] === 'object' && Object.keys(data[key]).length === 0) {
-                delete data[key];
-            }
-        }
+        removeEmptyKeys(data);
+        removeEmptyKeys(optionalObject);
+
+        console.debug('JSONData.value: ', this.status, data, optionalObject);
 
         const returnObject = {
             status: this.status,
-            data: this.data,
-            ...this.optionalObject,
+            data,
+            ...optionalObject,
         }        
 
         return returnObject;
+    }
+}
+
+const removeEmptyKeys = (obj: any) => {
+    for (const key in obj) {
+        if (obj[key] === undefined || obj[key] === null) {
+            delete obj[key];
+        }
+        else if (Array.isArray(obj[key]) && obj[key].length === 0) {
+            delete obj[key];
+        }
+        else if (typeof obj[key] === 'object' && Object.keys(obj[key]).length === 0) {
+            delete obj[key];
+        }
     }
 }
 
