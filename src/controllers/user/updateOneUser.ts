@@ -37,7 +37,7 @@ export default async (req: Request, res: Response, db: IDB) => {
     if (payload.password) errors.password = validation.password.messages;
 
     if (errors.name || errors.email || errors.password) {
-        const response = JSONResponse(status.fail, {errors});
+        const response = JSONResponse(status.fail, {data: errors});
         res.status(httpCodes.BadRequest).json(response);
         return;
     }

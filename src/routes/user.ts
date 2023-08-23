@@ -11,7 +11,7 @@ router.route('/')
 
 router.route('/:id')
     .get(controller.getOne)
-    .patch(controller.update)
+    .put(controller.update)
     .delete(controller.delete)
 
 export default router;

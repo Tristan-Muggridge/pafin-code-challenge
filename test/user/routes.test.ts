@@ -79,7 +79,7 @@ describe('GET /api/users', () => {
     });
 });
 
-describe('POST /api/user input validation', async () => {
+describe('POST /api/user create one', async () => {
     it('Should return 401 without a token', async () => {
         const response = await request(server).post('/api/users').send({});
         expect(response.status).to.equal(401);
@@ -221,4 +221,103 @@ describe("POST /api/users create many", async () => {
             }
         })
     });
-})
+});
+
+// UPDATE USER BY ID //
+describe("POST /api/users/:id", async () => {
+    it('Should return 401 without a token', async () => {
+        const result = await request(server).put('/api/users/1').send({});
+        expect(result.status).to.equal(401);
+        expect(result.body.status).to.equal('fail');
+        expect(result.body.data).to.be.an('undefined');
+    });
+
+    it('Should return 404 with an invalid id', async () => {
+        const result = await request(server).put('/api/users/999').send({}).set('Authorization', `Bearer ${token}`);
+               
+        expect(result.status).to.equal(404);
+        expect(result.body.status).to.equal('fail');
+        expect(result.body.data).to.be.equal(null);
+
+    });
+
+    it('Should return 400 with invalid input', async () => {
+        
+        // create a user to update
+        const userToUpdate = await request(server).post('/api/users').send({
+            name: "Test User",
+            email: "test-user@gmail.com",
+            password: "Password123!",
+        }).set('Authorization', `Bearer ${token}`);
+        
+        const id = userToUpdate.body.data.user.id;
+
+        const result = await request(server).put(`/api/users/${id}`).send({
+            name: 'St',
+            email: 'something',
+            password: 'password',
+        }).set('Authorization', `Bearer ${token}`);
+
+        expect(result.status).to.equal(400);
+        expect(result.body.status).to.equal('fail');
+        expect(result.body.data.data.name).to.be.an('array');
+        expect(result.body.data.data.email).to.be.an('array');
+        expect(result.body.data.data.password).to.be.an('array');
+    });
+
+    it('Should return 200 with valid input', async () => {
+        
+        // create a user to update
+        const userToUpdate = await request(server).post('/api/users').send({
+            name: "Test User",
+            email: "totallyuniqueemail@email.com",
+            password: "Password123!",
+        }).set('Authorization', `Bearer ${token}`);
+
+        const id = userToUpdate.body.data.user.id;
+
+        const result = await request(server).put(`/api/users/${id}`).send({
+            name: 'Updated Name',
+            email: 'updated-totally-unique-email@email.com',
+            password: 'UpdatedPassword123!',
+        }).set('Authorization', `Bearer ${token}`);
+
+        expect(result.status).to.equal(200);
+        expect(result.body.status).to.equal('success');
+        expect(result.body.data.user).to.be.an('object');
+        expect(result.body.data.user.name).to.equal('Updated Name');
+        expect(result.body.data.user.email).to.equal('updated-totally-unique-email@email.com');
+        expect(result.body.data.user.password).to.be.undefined;
+    });
+});
+
+// DELETE USER BY ID //
+describe("DELETE /api/users/:id", async () => {
+    it('Should return 401 without a token', async () => {
+        const result = await request(server).delete('/api/users/1').send({});
+        expect(result.status).to.equal(401);
+        expect(result.body.status).to.equal('fail');
+        expect(result.body.data).to.be.an('undefined');
+    });
+
+    it('Should return 404 with an invalid id', async () => {
+        const result = await request(server).delete('/api/users/999').send({}).set('Authorization', `Bearer ${token}`);
+
+        expect(result.status).to.equal(404);
+        expect(result.body.status).to.equal('fail');
+        expect(result.body.data.id).to.be.string;
+
+    });
+
+    it('Should return 200 with valid input', async () => {
+        
+        const userToDelete = await request(server).get('/api/users').set('Authorization', `Bearer ${token}`);
+        const id = userToDelete.body.data.users[0].id;
+
+        const result = await request(server).delete(`/api/users/${id}`).set('Authorization', `Bearer ${token}`);
+
+        expect(result.status).to.equal(204);
+        expect(result.body).to.be.empty;
+    });
+
+});

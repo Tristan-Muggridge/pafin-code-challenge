@@ -32,6 +32,8 @@ export default async (req: Request, res: Response, db: IDB) => {
         return;
     }
 
+    console.debug(user);
+
     if (!user) {
         const response = JSONResponse(status.fail, {id: Messages.UserNotFound});
         res.status(httpCodes.NotFound).json(response);

@@ -28,14 +28,14 @@ export default async (req: Request, res: Response, db: IDB) => {
     
     // default our response object with success and failures
     const responseObj: ResponseObj = { [status.success]: [], [status.fail]: {} };
-    
+    let responseStatus = status.success;
+
     // going to user an email:user map to keep track of which users are valid
     const validatedUsers: Map<string, UserCreate> = new Map();
 
     // for each array entry, validate the contents
     users.forEach( (user, index) => {
         const validation = UserValidation(user);
-        console.debug("email: ", user.email ?? index)
 
         // append any failed validations to the response object, use the index as the key if no email is provided
         if (!validation.valid) {
@@ -44,6 +44,8 @@ export default async (req: Request, res: Response, db: IDB) => {
                 email: validation.email.messages,
                 password: validation.password.messages,
             };
+
+            responseStatus = status.fail;
 
             // early exit if the user is invalid
             return;
@@ -58,16 +60,19 @@ export default async (req: Request, res: Response, db: IDB) => {
     const usersToCreate: Array<UserCreate> = [];
 
     validatedUsers.forEach( (user, email) => {
-        emailUniqueness.get(email)?.unique 
-            ? usersToCreate.push(user) 
-            : responseObj[status.fail][email] = {email: "Email already exists."};
+        if ( emailUniqueness.get(email)?.unique  ) {
+            usersToCreate.push(user);
+            return;
+        }
+
+        responseObj[status.fail][email] = {email: "Email already exists."};
+        responseStatus = status.fail;
     });
 
     const createdUsers = await db.createUsers(usersToCreate);
 
     responseObj[status.success] = createdUsers;
 
-
-    const response = JSONResponse(responseObj[status.fail] ? status.fail : status.success, {...responseObj});
+    const response = JSONResponse(responseStatus, {...responseObj});
     return res.status(httpCodes.Created).json({...response});
 }

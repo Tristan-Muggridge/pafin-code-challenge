@@ -103,11 +103,11 @@ class memoryDb implements db {
     public async deleteUser(id: string) {
         const user = this.users.get(id) || null;
         this.users.delete(id);
-        return {
-            id: user?.id || '',
-            name: user?.name || '',
-            email: user?.email || '',
-        };
+        return user ? {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        } : null;
     }
 
     public async validateEmailUniqueness(email: string) {
