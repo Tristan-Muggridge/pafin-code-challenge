@@ -3,7 +3,8 @@
 Good morning/afternoon! <br>
 This application is a RESTful API developed using TypeScript and Node.js that allows users to manage user data in a PostgreSQL database. The API supports CRUD operations for user resources and is secured using JWT authentication.
 
-To run the application, you will need to have Node.js and a running PostgreSQL database installed on your machine. You will also need to create a `.env` file in the root directory of the project with the following environment variables:
+To run the application, you will need to have Node.js installed on your machine. You will also require an active PostgreSQL server, and a connection string to this server.
+Default values have been provided in code for the env variables, however, you will need to provide a valid DATABASE_URL in the `.env` file in order to connect to your PostgreSQL server. If you'd like to change any of the env variables, please do so in the `.env` file.
 
 ```
 DATABASE_URL=   your_database_url
@@ -26,15 +27,55 @@ ENVIRONMENT=development
 Once you have created the `.env` file, you can run the application using the following commands:
 
 ```bash
-npm install
+npm ci
 npm start
 ```
 
-Please note: the application will not create any database tables or seed any data as requested in the challenge specification. This is because the database schema and tables have already been created. However, if you would like to create the database tables and seed the database with data, you can run the following commands after providing a valid DATABASE_URL in the `.env` file:
+Please note: the application will not create any database tables or seed any data as requested in the challenge specification. This is because the database schema and tables have already been created. However, if you would like to create the database tables, you can run the following commands after providing a valid DATABASE_URL in the `.env` file:
 
 ```bash
-npm prisma-setup
+npm run prisma-setup
 ```
+
+## Testing
+
+The application has been tested using the following tools:
+
+| Tool | Purpose |
+| ---- | ------- |
+| Postman | Used to test the API endpoints |
+| Mocha | Used to run unit tests |
+| Chai | Used to write unit tests |
+| Supertest | Used to write unit tests |
+
+To run the unit tests, please run the following command:
+
+```bash
+npm test
+```
+
+## Packages used:
+| Package | Purpose |
+| ------- | ------- |
+| express | Web framework for Node.js |
+| prisma  | ORM for Node.js |
+| crypto  | Used to hash passwords (bcrypt would provide more secure hashing for a real-world project) |
+| jsonwebtoken | Used to generate and verify JWT tokens |
+| dotenv | Used to load environment variables from a .env file |
+| cors | Used to enable CORS for the API |
+| express-async-errors | Used to handle async errors in express middleware |
+| chai | Used for unit testing |
+| mocha | Used for unit testing |
+| supertest | Used for unit testing |
+| typescript | Used to add type safety to JavaScript |
+
+## Database Schema:
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| id | string | Unique identifier for the user generated on creation of a record using uuid4 standard |
+| name | string | Name of the user |
+| email | string | Email address of the user (unique) |
+| password | string | Password of the user (hashed) |
 
 ## Usage:
 
@@ -43,7 +84,7 @@ npm prisma-setup
 Please be aware, all routes except for /login are protected by JWT authentication. 
 <br> To authenticate, you will need to provide a valid JWT token in the Authorization header of your request. 
 <br> You can obtain a valid JWT token by sending a POST request to the /login endpoint with a valid username (email) and password of a user already in the database, in the Authorization header of your request.
-<br> If you would like to test the API without having a user already in the database, please use the following route to create a user:
+<br> If you would like to test the API without having a user already in the database, please use the following route to create a user available in DEVELOPMENT and TESTING environment modes (set via .env file):
 
 #### GET /create-admin-user
 
@@ -68,7 +109,7 @@ Creates a user with the following credentials:
 }
 ```
 
-After create the user, you can use the following route to authenticate:
+After creating the user, you can use the following route to authenticate:
 
 ### POST /auth/login
 
@@ -78,7 +119,10 @@ Authenticates a user using basic authentication and returns a JWT token.
 
 ```json
 {
-  "token": "string"
+    "status": "string",
+    "data": {
+        "token": "string"
+    }
 }
 ```
 
@@ -90,34 +134,7 @@ After recieving this token, you can use it to authenticate your requests by prov
 
 ## The API supports the following endpoints:
 
-#### POST /users
-
-Creates a new user.
-
-#### Request Body:
-
-```json
-{
-    "id": "string",
-    "name": "string",
-    "email": "string",
-}
-```
-
-#### Response Body:
-
-```json
-{
-    "status": "string",
-    "data": {
-        "id": "string",
-        "name": "string",
-        "email": "string",
-    }
-}
-```
-
-### GET /users ( http://localhost:3000/api/users?skip=3&sort=email&order=desc&take=1 )
+### GET /users
 
 Retrieves all users.
 
@@ -171,38 +188,9 @@ Retrieves a user by id.
 }
 ```
 
-### PUT /users/:id
-
-Updates a user by id.
-
-#### Request Body:
-
-```json
-{
-  "name": "string",
-  "email": "string",
-  "password": "string"
-}
-```
-
-#### Response Body:
-
-```json
-{
-  "id": "string",
-  "name": "string",
-  "email": "string",
-}
-```
-
-### DELETE /users/:id
-
-Deletes a user by id.
-
-
 ### POST /users
 
-Creates either a single user, or a batch of users.
+Creates either a single user, or a batch of users depending on request body sent.
 
 #### Request Body (single user):
 
@@ -222,7 +210,13 @@ Creates either a single user, or a batch of users.
         "id": "string",
         "name": "string",
         "email": "string",
-    }
+    },
+    {
+        "id": "string",
+        "name": "string",
+        "email": "string",
+    },
+    ...
 ]
 ```
 
@@ -255,12 +249,59 @@ Creates either a single user, or a batch of users.
             }
         ],
         "fail": {
-            [string | number] : {
-                "name": string[],
-                "email": string[],
-                "password": string[]
+            "email" : {
+                "name": "string[]",
+                "email": "string[]",
+                "password": "string[]"
             }
         }
     }
 }
+```
+
+### PATCH /users/:id
+
+Updates a user by id. <br>
+Can either provide all fields, or just the fields you wish to update.
+
+#### Request Body:
+
+```json
+{
+  "name": "string",
+  "email": "string",
+  "password": "string"
+}
+```
+or
+```json
+{
+  "name": "string"
+}
+```
+or
+```json
+{
+  "email": "string",
+  "password": "string"
+}
+```
+
+#### Response Body:
+
+```json
+{
+  "id": "string",
+  "name": "string",
+  "email": "string",
+}
+```
+
+### DELETE /users/:id
+
+Deletes a user by id.
+
+#### Response Body:
+```
+No request body required.
 ```
