@@ -17,11 +17,11 @@ ENVIRONMENT=    "development" | "production"
 Please don't hesitate to utilise the following example `.env` file:
 
 ```env
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
-DB_TYPE=prisma
-PORT=3000
-JWT_SECRET=secret
-ENVIRONMENT=development
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres"
+DB_TYPE="prisma"
+PORT="3000"
+JWT_SECRET="secret"
+ENVIRONMENT="development"
 ```
 
 Once you have created the `.env` file, you can run the application using the following commands:
@@ -53,6 +53,8 @@ To run the unit tests, please run the following command:
 ```bash
 npm test
 ```
+
+Please note: some tests will fail if users exist in the database with an email which is being used in the tests. This is because the email field is unique in the database schema. If you would like to run the tests without any errors, please ensure that the database is empty before running the tests.
 
 ## Packages used:
 | Package | Purpose |
