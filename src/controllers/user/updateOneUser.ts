@@ -43,16 +43,24 @@ export default async (req: Request, res: Response, db: IDB) => {
     }
 
     // if the payload is valid, update the user and return a 204
-    const update = await db.updateUser(id, payload);
+    try {
+        const update = await db.updateUser(id, payload);
 
-    // if the update is null (user not found) return a 404
-    if (!update) {
+        // if the update is null (user not found) return a 404
+        if (!update) {
+            const response = JSONResponse(status.fail, null, {message: ErrorMessages.UserNotFound});
+            res.status(httpCodes.NotFound).json(response);
+            return;
+        }
+
+        const response = JSONResponse(status.success, {user: update});
+        res.status(httpCodes.Ok).json(response);
+        return;
+    } catch (error:any) {
+        if (!error.message.includes("Record to update not found.")) throw error;
+        
         const response = JSONResponse(status.fail, null, {message: ErrorMessages.UserNotFound});
         res.status(httpCodes.NotFound).json(response);
         return;
     }
-
-    const response = JSONResponse(status.success, {user: update});
-    res.status(httpCodes.Ok).json(response);
-    return;
 }

@@ -2,22 +2,25 @@ import { expect } from 'chai';
 import { describe } from 'mocha';
 import request from 'supertest';
 import App from '../src/App';
-import { AppSettings } from '../src/appSettings';
+import settings, { AppSettings } from '../src/appSettings';
 
 let token: string = "";
 
-const settings: AppSettings = {
+const TestSettings: AppSettings = {
     dbType: 'memory',
     port: 3001,
     jwtSecret: '秘密です～',
     environment: 'testing'
 }
 
-let appInstance = new App(settings); // Create an instance of the App class
+let appInstance = new App(TestSettings); // Create an instance of the App class
 let server = appInstance.start(); // Start the server
 
 describe('Login Route', () => {
     
+    // before the test suite runs, delete all users
+    
+
     it("Should create an admin user", async () => {
         const response = await request(server).post('/create-admin-user').send({});
         expect(response.status).to.equal(201);

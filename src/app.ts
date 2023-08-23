@@ -8,28 +8,28 @@ import { AppSettings } from './appSettings';
 import { authenticate } from './JWT';
 import httpCodes from './enums/httpCodes';
 import jsonStatus from './enums/jsonStatus';
+import JsonResponse from './JsonResponse'
 
 function errorMiddleware(err: any, req: Request, res: Response, next: NextFunction) {
-	console.error(err); // Log the error for debugging purposes
+	// Log the error for debugging purposes
+	console.error(err);
 
 	// Handle the error response
-	res.status(httpCodes.InternalServerError).json({
-		status: jsonStatus.error,
-		message: err.message ?? 'An error occurred',
-	});
+	res.status(httpCodes.InternalServerError).json(JsonResponse(jsonStatus.fail, null, {message: err.message}));
 }
 
 export class App {
 	// Keep a list of tokens that are not allowed to be used anymore (ie: logged out)
 	// ** Ideally this would be in a table but challenge requirements specified single User table **
 	public static tokenNotAllowedList: Set<string> = new Set();
+    public static settings: AppSettings;
 
 	public app: Application;
-    public settings: AppSettings;
 
     constructor(settings: AppSettings) {
+		App.settings = settings;
+
         this.app = express();
-        this.settings = settings;
         
 		// For convenience
 		const app = this.app; 
@@ -50,9 +50,9 @@ export class App {
 		app.use(errorMiddleware);
 	}
 
-    public start = () => this.app.listen(this.settings.port, () => {
-        console.log(`Server listening on port ${this.settings.port}`);
-        console.log(`DB: ${this.settings.dbType}`)
+    public start = () => this.app.listen(App.settings.port, () => {
+        console.log(`Server listening on port ${App.settings.port}`);
+        console.log(`DB: ${App.settings.dbType}`)
     });
 }
 
