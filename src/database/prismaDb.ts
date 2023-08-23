@@ -158,19 +158,23 @@ class prismaDb implements db {
     }
 
     public async basicAuth(username: string, password: string) {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                email: username,
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                password: true,
-            }
-        });
-
-        return user?.password === createHash(password) ? user.id : null;
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: {
+                    email: username,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    password: true,
+                }
+            });
+    
+            return user?.password === createHash(password) ? user.id : null;    
+        } catch (error) {
+            return null;
+        }
     }
 }
 

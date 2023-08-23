@@ -5,13 +5,19 @@ import httpCodes from "../../enums/httpCodes";
 import JSONResponse from "../../JsonResponse";
 import jsonStatus from "../../enums/jsonStatus";
 
-import { sign } from '../../JWT';
+import { sign, verify } from '../../JWT';
 import { App } from "../../App";
 import { BasicAuthStrategy } from "../../classes/AuthStrategies";
 
 interface IAuthController {
     login(req: Request, res: Response): Promise<void>;
     logout(req: Request, res: Response): void;
+}
+
+enum Messages {
+    InvalidCredentials = 'Invalid credentials',
+    NoToken = 'No token provided, unable to logout',
+    Success = 'Logged out successfully'
 }
 
 class AuthController implements IAuthController {
@@ -29,7 +35,8 @@ class AuthController implements IAuthController {
         const authenticated = await strategy.authenticate();
         
         if (!authenticated) {
-            res.status(httpCodes.Unauthorized).json(JSONResponse(jsonStatus.fail, undefined, 'Invalid credentials'));
+            const response = JSONResponse(jsonStatus.fail, undefined, {message: Messages.InvalidCredentials});
+            res.status(httpCodes.Unauthorized).json(response);
             return;
         }
         
@@ -45,13 +52,18 @@ class AuthController implements IAuthController {
         const token = req.headers.authorization?.split(' ')[1] || '';
         
         if (!token) {
-            res.status(httpCodes.BadRequest).json(JSONResponse(jsonStatus.fail, undefined, {message: 'Unable to logout. No token provided'}));
+            const response = JSONResponse(jsonStatus.fail, undefined, {message: Messages.NoToken})
+            res.status(httpCodes.BadRequest).json(response);
             return;
         }
         
+        // ensure the JWT token is valid
+        const verification = verify(token);
+
         App.tokenNotAllowedList.add(token);
 
-        res.status(httpCodes.Ok).send(JSONResponse(jsonStatus.success, undefined, {message: 'Logged out successfully'}));
+        const response = JSONResponse(jsonStatus.success, undefined, {message: Messages.Success})
+        res.status(httpCodes.Ok).send(response);
         return;
     }
 

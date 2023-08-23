@@ -29,12 +29,12 @@ export default async (req: Request, res: Response, db: IDB) => {
 
     const payload = req.body as Payload;
     const validation = UserValidation(payload);
-    
+
     // only check for fields present in payload
     const errors: any = {};
-    if (payload.name) errors.name = validation.name.messages;
-    if (payload.email) errors.email = validation.email.messages;
-    if (payload.password) errors.password = validation.password.messages;
+    if (payload.name !== undefined) errors.name = validation.name.messages;
+    if (payload.email !== undefined) errors.email = validation.email.messages;
+    if (payload.password !== undefined) errors.password = validation.password.messages;
 
     if (errors.name || errors.email || errors.password) {
         const response = JSONResponse(status.fail, {data: errors});

@@ -11,16 +11,24 @@ export interface JwtPayload {
 
 const jwtSecret = settings.jwtSecret;
 
+enum ErrorMessages {
+    NoToken = 'No token provided',
+    TokenNotAllowed = 'Token not allowed',
+    Invalid = 'Invalid token'
+};
+
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1] || '';
 
     if (!token) {
-        res.status(httpCodes.Unauthorized).json(JSONResponse(jsonStatus.fail, undefined, 'No token provided'));
+        const response = JSONResponse(jsonStatus.fail, undefined, {message: ErrorMessages.NoToken})
+        res.status(httpCodes.Unauthorized).json(response);
         return;
     }
 
     if (App.tokenNotAllowedList.has(token)) {
-        res.status(httpCodes.Unauthorized).send('Token not allowed');
+        const response = JSONResponse(jsonStatus.fail, undefined, {message: ErrorMessages.TokenNotAllowed});
+        res.status(httpCodes.Unauthorized).send(response);
     }
 
     let verification: string | jwt.JwtPayload;
@@ -28,12 +36,14 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
     try {
         verification = verify(token);
     } catch (error) {
-        res.status(httpCodes.Unauthorized).send(JSONResponse(jsonStatus.fail, undefined, 'Invalid token'));
+        const response = JSONResponse(jsonStatus.fail, undefined, {message: ErrorMessages.Invalid})
+        res.status(httpCodes.Unauthorized).send(response);
         return;
     }
 
     if (!verification) {
-        res.status(httpCodes.Unauthorized).send('Invalid token');
+        const response = JSONResponse(jsonStatus.fail, undefined, {message: ErrorMessages.Invalid})
+        res.status(httpCodes.Unauthorized).send(response);
         return;
     }
 

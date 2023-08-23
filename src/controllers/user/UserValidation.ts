@@ -32,10 +32,15 @@ class UserValidation {
 
     private validateName = (name: string) => {
         name = name.trim();
+
         const rules = [
             {
                 valid: !!name,
                 message: "Name is required."
+            },
+            {
+                valid: name.replace(/[^a-zA-Z\s']/g, "") === name,
+                message: "Name must only contain letters, spaces, and apostraphes."
             },
             {
                 valid: name?.length > minNameLength,
@@ -48,6 +53,7 @@ class UserValidation {
 
     private validateEmail = (email: string):ValidationSummary => {
         email = email.trim();
+
         const rules = [
             // Check for email
             {
@@ -61,7 +67,7 @@ class UserValidation {
             },
             // Check for domain after @ symbol
             {
-                valid: email?.split("@")[1]?.split('.')[1] !== undefined,
+                valid: email?.split("@")[1]?.split('.')[1]?.length > 0,
                 message: "Email must contain a domain. (e.g. @gmail.com)"
             }
         ]
