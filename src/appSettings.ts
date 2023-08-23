@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-enum dbType {
+export enum dbType {
     memory = 'memory',
     prisma = 'prisma'
 }
 
-enum environments {
+export enum environments {
     development = 'development',
     testing = 'testing',
     production = 'production'

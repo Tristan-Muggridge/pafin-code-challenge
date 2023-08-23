@@ -1,5 +1,5 @@
-import settings from "../appSettings";
+import settings, { dbType } from "../appSettings";
 import memoryDb from "./memoryDb";
 import prismaDb from "./prismaDb";
 
-export default () => settings.dbType === 'prisma' ? prismaDb : memoryDb;
+export default () => settings.dbType === dbType.prisma ? prismaDb : memoryDb;

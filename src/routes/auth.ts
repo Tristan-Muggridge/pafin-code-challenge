@@ -1,7 +1,7 @@
 import { Router } from "express";
 import AuthController from "../controllers/auth";
 import getDB from "../database/getDB";
-import settings from "../appSettings";
+import settings, { environments } from "../appSettings";
 
 const controller = AuthController(getDB());
 const router = Router();
@@ -10,6 +10,6 @@ router.post('/login', controller.login);
 router.post('/logout', controller.logout);
 
 // only meant for testing
-settings.environment !== 'production' && router.post('/create-admin-user', controller.TEST_ONLY_create_admin_user);
+settings.environment !== environments.production && router.post('/create-admin-user', controller.TEST_ONLY_create_admin_user);
 
 export default router;

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { describe } from 'mocha';
 import request from 'supertest';
-import App from '../../src/App';
-import { AppSettings } from '../../src/appSettings';
+import App from '../src/App';
+import { AppSettings } from '../src/appSettings';
 
 let token: string = "";
 
