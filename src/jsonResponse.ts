@@ -19,8 +19,6 @@ class JSONData {
         removeEmptyKeys(data);
         removeEmptyKeys(optionalObject);
 
-        console.debug('JSONData.value: ', this.status, data, optionalObject);
-
         const returnObject = {
             status: this.status,
             data,

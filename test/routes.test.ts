@@ -227,16 +227,16 @@ describe("POST /api/users create many", async () => {
 });
 
 // UPDATE USER BY ID //
-describe("POST /api/users/:id", async () => {
+describe("PATCH /api/users/:id", async () => {
     it('Should return 401 without a token', async () => {
-        const result = await request(server).put('/api/users/1').send({});
+        const result = await request(server).patch('/api/users/1').send({});
         expect(result.status).to.equal(401);
         expect(result.body.status).to.equal('fail');
         expect(result.body.data).to.be.an('undefined');
     });
 
     it('Should return 404 with an invalid id', async () => {
-        const result = await request(server).put('/api/users/999').send({}).set('Authorization', `Bearer ${token}`);
+        const result = await request(server).patch('/api/users/999').send({}).set('Authorization', `Bearer ${token}`);
                
         expect(result.status).to.equal(404);
         expect(result.body.status).to.equal('fail');
@@ -255,7 +255,7 @@ describe("POST /api/users/:id", async () => {
         
         const id = userToUpdate.body.data.user.id;
 
-        const result = await request(server).put(`/api/users/${id}`).send({
+        const result = await request(server).patch(`/api/users/${id}`).send({
             name: 'St',
             email: 'something',
             password: 'password',
@@ -279,11 +279,13 @@ describe("POST /api/users/:id", async () => {
 
         const id = userToUpdate.body.data.user.id;
 
-        const result = await request(server).put(`/api/users/${id}`).send({
+        const result = await request(server).patch(`/api/users/${id}`).send({
             name: 'Updated Name',
             email: 'updated-totally-unique-email@email.com',
             password: 'UpdatedPassword123!',
         }).set('Authorization', `Bearer ${token}`);
+
+        console.debug(result.body);
 
         expect(result.status).to.equal(200);
         expect(result.body.status).to.equal('success');
