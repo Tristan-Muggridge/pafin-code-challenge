@@ -8,7 +8,7 @@ Default values have been provided in code for the env variables, however, you wi
 
 ```
 DATABASE_URL=   your_database_url
-DB_TYPE=        "postgres" | "memory"
+DB_TYPE=        "prisma" | "memory"
 PORT=           your_port: number
 JWT_SECRET=     your_jwt_secret: string
 ENVIRONMENT=    "development" | "production"
@@ -18,7 +18,7 @@ Please don't hesitate to utilise the following example `.env` file:
 
 ```env
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
-DB_TYPE=postgres
+DB_TYPE=prisma
 PORT=3000
 JWT_SECRET=secret
 ENVIRONMENT=development
